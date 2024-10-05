@@ -1,0 +1,56 @@
+*{
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+    font-family: 'Poppins';
+}
+
+body,html,#app,#__nuxt{
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
+    display:flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#app{transition: opacity var(--transition-duration) ease;}
+#app.app-loading{opacity: 0;}
+
+.nop{
+    pointer-events: none !important;
+}
+
+#app-content{
+    flex: 1;
+    height: 100%;
+    overflow: auto;
+    background-color: var(--light-color);
+}
+
+
+#app-content .bg::-webkit-scrollbar{width: 15px;}
+#app-content .bg::-webkit-scrollbar-track{background-color: var(--light-color);}
+#app-content .bg::-webkit-scrollbar-thumb{background-color: var(--dark-color);}
+#app-content .bg::-webkit-scrollbar-thumb:hover{background-color: #505050;}
+#app-content .bg::-webkit-scrollbar-thumb:active{background-color: #909090;}
+
+.w-100{width: 100%;}
+
+.text-accent{color: var(--accent-color) !important;}
+.label-accent{background-color: var(--accent-color) !important;}
+.text-mid{color: var(--mid-color) !important; color: black;}
+.label-mid{background-color: var(--mid-color) !important; color:black;}
+.text-var-dark{color: var(--dark-color) !important;}
+.bg-var-dark{background-color: var(--dark-color) !important;}
+.bg-mid-dark{background-color: var(--mid-dark-color) !important;}
+.text-dark{color: #505050 !important;}
+.label-dark{background-color: #505050 !important;}
+.bg-accent{background-color: var(--accent-color) !important;}
+.bg-accent-opaque{background-color: var(--accent-color-opaque) !important;}
+.bg-mid-accent{background-color: var(--mid-accent) !important; color: white !important;}
+.bg-mid{background-color: var(--mid-color) !important;}
+.bg-red{background-color: rgb(202, 95, 95) !important;}
+
+.a-text-bold{font-weight: bold;}
+.a-text-italic{font-style: italic;}

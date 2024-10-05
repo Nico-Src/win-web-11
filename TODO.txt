@@ -1,0 +1,18 @@
+Reporting in Series and Volume Page, Release Calendar
+
+Beim Dateneintragen:
+Content-Type Tags hinzufügen, Origin Tags hinzufügen
+
+Für die Zukunt:
+NSFW Detection bei Profilbildern
+
+Checkliste fürs Eintragen später:
+- Publisher mit Origin
+- Content-Type und Origin Tags eingefügt
+- Contributoren eingetragen (Links, Gender, Type und Bild)
+- Publisher eingetragen und up to date
+- Aliase eingetragen (Alle Sprachen die Verfügbar sind)
+- Sachen die Fehlen reportet
+- Beschreibungen und Ausgaben eingefügt
+
+- Bei Sammelschuber etc. 3D-Ansicht deaktivieren
