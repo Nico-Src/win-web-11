@@ -1,3 +1,9 @@
 {
-
+    "language": "Language",
+    "language.de": "German",
+    "language.en": "English",
+    "windows-search-placeholder": "Search for Apps, Settings or Documents...",
+    "search": "Search",
+    "edge": "Edge",
+    "file-explorer": "File Explorer"
 }
