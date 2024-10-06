@@ -1,7 +1,11 @@
 <script setup>
 const route = useRoute();
+const i18n = useI18n();
 
 const isMounted = ref(false);
+
+const lang = localStorage.getItem('win-language') || 'en';
+i18n.setLocale(lang);
 
 onMounted(()=>{
     isMounted.value = true;
