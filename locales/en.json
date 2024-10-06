@@ -5,5 +5,7 @@
     "windows-search-placeholder": "Search for Apps, Settings or Documents...",
     "search": "Search",
     "edge": "Edge",
-    "file-explorer": "File Explorer"
+    "file-explorer": "File Explorer",
+    "sign-in": "Sign in",
+    "sign-out": "Sign out"
 }
