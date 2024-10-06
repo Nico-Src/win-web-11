@@ -7,7 +7,7 @@ export default defineNuxtConfig({
     },
     app: {
         pageTransition: { name: 'page', mode: 'out-in' },
-        baseURL: '/VS-Code-Portfolio/projects/peerjs-chat/' // /VS-Code-Portfolio/projects/peerjs-chat/ 
+        baseURL: '/VS-Code-Portfolio/projects/windows-11/'
     },
     css: [
         '@/assets/css/variables.css',
@@ -29,11 +29,6 @@ export default defineNuxtConfig({
     plugins: [
         { src: '~/plugins/global.js', mode: 'client' }
     ],
-    nitro: {
-        prerender: {
-          routes: ['/index']
-        }
-    },
     i18n: {
         vueI18n: './i18n.config.js',
         detectBrowserLanguage: false,
