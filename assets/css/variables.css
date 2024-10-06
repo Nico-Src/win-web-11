@@ -1,3 +1,7 @@
 body{
     --transition-duration: .3s;
+    --light-bg: 255,255,255;
+    --dark-bg: 32,32,32;
+    --dark-bg-2: 64,64,64;
+    --blur-radius: 20.5px;
 }
