@@ -5,20 +5,24 @@ const snackbar = useSnackbar();
 const i18n = useI18n();
 
 import Utils from "~/classes/utils.js";
+import moment from 'moment/min/moment-with-locales';
 
 const availableLanguages = [
-    {key: 'de', name: 'German', src: '/img/flags/germany.png'},
-    {key: 'en', name: 'English', src: '/img/flags/united-kingdom.png'},
+    {key: 'de', name: 'German', src: '/img/flags/germany.png', locale: 'de'},
+    {key: 'en', name: 'English', src: '/img/flags/united-kingdom.png', locale: 'en-US'},
 ];
 
 const darkMode = ref(false);
 const taskbar = ref({tasks: []});
 const taskbarEl = ref(null);
-const language = ref(availableLanguages.find(l => l.key === ('en')));
+const language = ref(availableLanguages.find(l => l.key === localStorage.getItem('win-language') || 'en'));
 const languageSelect = ref(null);
 const showWindowsHub = ref(false);
 const windowsHub = ref(null);
 const windowsHubSearch = ref('');
+const startingUp = ref(true);
+const showStartUp = ref(true);
+const signedIn = ref(false);
 
 function taskDown(event){
     const target = event.target;
@@ -45,7 +49,7 @@ function toggleWindowsHub(force){
 function selectLocale(e){
     i18n.setLocale(e.key);
     // save to local storage
-    // setItem('language',e.key);
+    localStorage.setItem('win-language',e.key);
     // unfocus input
     languageSelect.value.blur();
 }
@@ -77,11 +81,30 @@ window.onclick = (e) => {
 }
 
 onMounted(()=>{
-    loadDefaultTasks();
+    console.log(i18n.locale)
+    setTimeout(()=>{
+        startingUp.value = false;
+        setTimeout(()=>{
+            showStartUp.value = false;
+            loadDefaultTasks();
+        }, 1000);
+    }, 2500);
 });
 </script>
 <template>
     <div :class="{bg: true, dark: darkMode}" ref="scrollEl">
+        <div id="startupScreen" :class="{hide: !showStartUp}">
+            <img src="icons/windows.png" class="logo">
+            <Icon name="svg-spinners:ring-resize" size="35px" :class="{spinner: true, hide: !startingUp}"/>
+        </div>
+        <div id="lockScreen" :class="{hide: signedIn || startingUp}">
+            <img src="wallpaper/light.jpg" class="background">
+            <div class="content-wrapper">
+                <span class="time">{{ moment().locale(availableLanguages.find(l => l.key == $i18n.locale).locale).format(`${$i18n.locale == 'de' ? 'HH' : 'hh'}:mm${$i18n.locale == 'de' ? '' : ' A'}`) }}</span>
+                <span class="date">{{ moment().locale(availableLanguages.find(l => l.key == $i18n.locale).locale).format('dddd, Do MMMM YYYY') }}</span>
+                <q-btn @click="signedIn = true">{{ $t('sign-in') }}</q-btn>
+            </div>
+        </div>
         <div class="bg-wrapper">
             <img :class="{hide: darkMode}" src="/wallpaper/light.jpg">
             <img :class="{hide: !darkMode}" src="/wallpaper/dark.jpg">
@@ -145,6 +168,72 @@ onMounted(()=>{
     #windows-hub .search-wrapper .icon{color: #aaa;}
     #windows-hub .search-wrapper .input{color: white;}
 }
+
+#startupScreen,#lockScreen{
+    position: fixed;
+    z-index: 9999;
+    inset: 0;
+    background-color: black;
+    display:flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    opacity: 1;
+    transition: opacity var(--transition-duration) ease;
+
+    &.hide{opacity: 0;pointer-events: none;}
+
+    .background{
+        width: 250%;
+        height: 250%;
+        object-fit: cover;
+        filter: blur(20px);
+    }
+
+    .content-wrapper{
+        position: fixed;
+        inset: 0;
+        display:flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+
+        .time{
+            color: white;
+            font-size: 50px;
+            font-weight: 600;
+        }
+
+        .date{
+            color: #ccc;
+            font-size: 17px;
+            font-weight: 400;
+            transform: translateY(-10px);
+        }
+
+        .q-btn{
+            margin-bottom: 320px;
+            background-color: rgba(var(--light-bg),0.66);
+            color: black;
+        }
+    }
+
+    .logo{
+        width: 200px;
+        aspect-ratio: 1;
+        transform: translateY(-50px);
+    }
+
+    .spinner{
+        margin-top: 100px;
+        color: white;
+        transition: opacity var(--transition-duration) ease;
+
+        &.hide{opacity: 0;}
+    }
+}
+
+#lockScreen{z-index: 9998 !important;}
 
 #taskbar{
     width: 100%;
