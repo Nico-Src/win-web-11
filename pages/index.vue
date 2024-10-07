@@ -3,25 +3,26 @@ const route = useRoute();
 const router = useRouter();
 const snackbar = useSnackbar();
 const i18n = useI18n();
+const app = useNuxtApp();
 
 import Utils from "~/classes/utils.js";
-import moment from 'moment/min/moment-with-locales';
-
-const availableLanguages = [
-    {key: 'de', name: 'German', src: '/img/flags/germany.png', locale: 'de'},
-    {key: 'en', name: 'English', src: '/img/flags/united-kingdom.png', locale: 'en-US'},
-];
 
 const darkMode = ref(false);
+
+// taskbar variables
 const taskbar = ref({tasks: []});
 const taskbarEl = ref(null);
-const language = ref(availableLanguages.find(l => l.key === localStorage.getItem('win-language') || 'en'));
+// language select variables
+const language = ref(app.$langs.find(l => l.key === localStorage.getItem('win-language') || 'en'));
 const languageSelect = ref(null);
+// windows hub variables
 const showWindowsHub = ref(false);
 const windowsHub = ref(null);
 const windowsHubSearch = ref('');
+// start screen variables
 const startingUp = ref(true);
 const showStartUp = ref(true);
+// lock screen variables
 const signedIn = ref(false);
 
 function taskDown(event){
@@ -34,11 +35,7 @@ function taskUp(event){
     target.classList.remove('clicked');
 }
 
-function taskClick(action){
-    if(action){
-        eval(action);
-    }
-}
+const taskClick = (action) => { if(action) eval(action); }
 
 function toggleWindowsHub(force){
     if(force === undefined) showWindowsHub.value = !showWindowsHub.value;
@@ -75,49 +72,31 @@ function loadDefaultTasks(){
 }
 
 window.onclick = (e) => {
-    if(!windowsHub.value.contains(e.target) && windowsHub.value !== e.target && e.target.getAttribute('data-name') !== 'windows'){
+    if(!windowsHub.value.el.contains(e.target) && windowsHub.value.el !== e.target && e.target.getAttribute('data-name') !== 'windows'){
         toggleWindowsHub(false);
     }
 }
 
 onMounted(()=>{
-    console.log(i18n.locale)
     setTimeout(()=>{
         startingUp.value = false;
         setTimeout(()=>{
             showStartUp.value = false;
             loadDefaultTasks();
         }, 1000);
-    }, 2500);
+    }, 100); // 2500
 });
 </script>
 <template>
-    <div :class="{bg: true, dark: darkMode}" ref="scrollEl">
-        <div id="startupScreen" :class="{hide: !showStartUp}">
-            <img src="icons/windows.png" class="logo">
-            <Icon name="svg-spinners:ring-resize" size="35px" :class="{spinner: true, hide: !startingUp}"/>
-        </div>
-        <div id="lockScreen" :class="{hide: signedIn || startingUp}">
-            <img src="wallpaper/light.jpg" class="background">
-            <div class="content-wrapper">
-                <span class="time">{{ moment().locale(availableLanguages.find(l => l.key == $i18n.locale).locale).format(`${$i18n.locale == 'de' ? 'HH' : 'hh'}:mm${$i18n.locale == 'de' ? '' : ' A'}`) }}</span>
-                <span class="date">{{ moment().locale(availableLanguages.find(l => l.key == $i18n.locale).locale).format('dddd, Do MMMM YYYY') }}</span>
-                <q-btn @click="signedIn = true">{{ $t('sign-in') }}</q-btn>
-            </div>
-        </div>
+    <div :class="{bg: true, 'dark-theme': darkMode}" ref="scrollEl">
+        <StartupScreen :show="showStartUp" :show-loader="startingUp"></StartupScreen>
+        <LockScreen :signed-in="signedIn" :hide-startup="startingUp"></LockScreen>
         <div class="bg-wrapper">
             <img :class="{hide: darkMode}" src="/wallpaper/light.jpg">
             <img :class="{hide: !darkMode}" src="/wallpaper/dark.jpg">
         </div>
-        <TransitionGroup id="taskbar" ref="taskbarEl" tag="div" name="taskbar">
-            <div class="taskbar-item" v-for="task in taskbar.tasks" :key="task.id" @mousedown="taskDown($event)" @mouseup="taskUp($event)" @mouseleave="taskUp($event)" @click="taskClick(task.action)" :data-name="task.name">
-                <img :src="darkMode ? task.darkIcon : task.icon" :alt="task.name" :width="task.iconSize" :height="task.iconSize" :name="task.name">
-                <q-tooltip v-if="!task.hideToolTip" transition-show="fade" transition-hide="fade" :transition-duration="300" :delay="1000" :class="{'taskbar-tooltip': true, dark: darkMode}">
-                    {{ $t(task.name) }}
-                </q-tooltip>
-            </div>
-        </TransitionGroup>
-        <q-select ref="languageSelect" square class="language-select" @update:model-value="selectLocale" filled v-model="language" :options="availableLanguages" :label="$t('language')" color="dark" :transition-duration="150" :popup-content-class="`${darkMode ? 'dark' : ''} language-select-popup`">
+        <Taskbar :dark-mode="darkMode" :tasks="taskbar.tasks" :task-down="taskDown" :task-up="taskUp" :task-click="taskClick" ref="taskbarEl"></Taskbar>
+        <q-select ref="languageSelect" square class="language-select" @update:model-value="selectLocale" filled v-model="language" :options="$langs" :label="$t('language')" color="dark" :transition-duration="150" :popup-content-class="`${darkMode ? 'dark' : ''} language-select-popup`">
             <template v-slot:option="scope">
                 <q-item v-bind="scope.itemProps">
                     <q-item-section>
@@ -136,15 +115,7 @@ onMounted(()=>{
         <div id="theme-toggle" @click="darkMode = !darkMode">
             <Icon :name="darkMode ? 'material-symbols:dark-mode' : 'material-symbols:light-mode'" size="22px"/>
         </div>
-        <div id="windows-hub" :class="{hide: !showWindowsHub}" ref="windowsHub">
-            <div class="search-wrapper">
-                <Icon name="material-symbols:search" size="22px"/>
-                <div class="input-wrapper">
-                    <input class="input" type="text" v-model="windowsHubSearch">
-                    <div :class="{placeholder: true, hide: windowsHubSearch.length > 0}">{{ $t('windows-search-placeholder') }}</div>
-                </div>
-            </div>
-        </div>
+        <WindowsHub :show="showWindowsHub" :search="windowsHubSearch" :dark-mode="darkMode" ref="windowsHub"></WindowsHub>
     </div>
 </template>
 <style scoped>
@@ -156,125 +127,10 @@ onMounted(()=>{
     user-select: none;
 }
 
-.dark{
-    #taskbar{background-color: rgba(var(--dark-bg), .66); border-color: rgba(var(--dark-bg-2), .66);}
-    #taskbar .taskbar-item:hover{background-color: rgba(var(--dark-bg-2), .66) !important;}
+.dark-theme{
     #theme-toggle{background-color: rgba(var(--dark-bg), .66); color: white;}
     #theme-toggle:hover{background-color: rgba(var(--dark-bg-2), .66) !important;}
     .language-select{background-color: rgba(var(--dark-bg), .66);}
-    #windows-hub{background-color: rgba(var(--dark-bg), .66); border-color: rgba(var(--dark-bg-2), .66);}
-    #windows-hub .search-wrapper{background-color: rgba(var(--dark-bg-2), .66); border-color: rgba(var(--dark-bg-2), .66);}
-    #windows-hub .search-wrapper:focus-within{background-color: rgba(var(--dark-bg-2), 1) !important;}
-    #windows-hub .search-wrapper .icon{color: #aaa;}
-    #windows-hub .search-wrapper .input{color: white;}
-}
-
-#startupScreen,#lockScreen{
-    position: fixed;
-    z-index: 9999;
-    inset: 0;
-    background-color: black;
-    display:flex;
-    justify-content: center;
-    align-items: center;
-    flex-direction: column;
-    opacity: 1;
-    transition: opacity var(--transition-duration) ease;
-
-    &.hide{opacity: 0;pointer-events: none;}
-
-    .background{
-        width: 250%;
-        height: 250%;
-        object-fit: cover;
-        filter: blur(20px);
-    }
-
-    .content-wrapper{
-        position: fixed;
-        inset: 0;
-        display:flex;
-        justify-content: center;
-        align-items: center;
-        flex-direction: column;
-
-        .time{
-            color: white;
-            font-size: 50px;
-            font-weight: 600;
-        }
-
-        .date{
-            color: #ccc;
-            font-size: 17px;
-            font-weight: 400;
-            transform: translateY(-10px);
-        }
-
-        .q-btn{
-            margin-bottom: 320px;
-            background-color: rgba(var(--light-bg),0.66);
-            color: black;
-        }
-    }
-
-    .logo{
-        width: 200px;
-        aspect-ratio: 1;
-        transform: translateY(-50px);
-    }
-
-    .spinner{
-        margin-top: 100px;
-        color: white;
-        transition: opacity var(--transition-duration) ease;
-
-        &.hide{opacity: 0;}
-    }
-}
-
-#lockScreen{z-index: 9998 !important;}
-
-#taskbar{
-    width: 100%;
-    height: 50px;
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    z-index: 2;
-    background-color: rgba(var(--light-bg),0.66);
-    border-top: 1px solid rgba(var(--light-bg),.66);
-    backdrop-filter: blur(var(--blur-radius));
-    display:flex;
-    justify-content: center;
-    align-items: center;
-    gap: 10px;
-    transition: background-color var(--transition-duration) ease, border-color var(--transition-duration) ease;
-
-    .taskbar-item{
-        width: 40px;
-        aspect-ratio: 1;
-        border-radius: 4px;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        cursor: pointer;
-        transition: background-color var(--transition-duration) ease;
-
-        &:hover{
-            background-color: rgba(var(--light-bg), .66);
-        }
-
-        &.clicked img{
-            transform: scale(0.85);
-        }
-    }
-
-    .taskbar-item img{
-        transition: transform .15s ease;
-        will-change: transform;
-        pointer-events: none;
-    }
 }
 
 .bg-wrapper{
@@ -332,106 +188,9 @@ onMounted(()=>{
     background-color: rgba(var(--light-bg),0.66);
     transition: background-color var(--transition-duration) ease;
 }
-
-#windows-hub{
-    position: absolute;
-    z-index: 1;
-    bottom: 70px;
-    left: 0; right: 0;
-    margin: auto;
-    width: 650px;
-    height: calc(100% - 100px);
-    background-color: rgba(var(--light-bg),0.66);
-    border: 1px solid rgba(var(--light-bg),.66);
-    border-radius: 4px;
-    backdrop-filter: blur(var(--blur-radius));
-    transition: background-color var(--transition-duration) ease, transform var(--transition-duration) ease, opacity var(--transition-duration) ease;
-    will-change: transform, opacity;
-    display:flex;
-    justify-content: flex-start;
-    align-items: center;
-    flex-direction: column;
-    padding: 20px;
-
-    &.hide{
-        transform: translateY(100%);
-        opacity: 0;
-        pointer-events: none;
-    }
-
-    .search-wrapper{
-        width: 100%;
-        height: 30px;
-        background-color: rgba(var(--light-bg),0.66);
-        border: 1px solid rgba(var(--light-bg),.66);
-        border-radius: 15px;
-        display:flex;
-        justify-content: center;
-        align-items: center;
-        transition: background-color var(--transition-duration) ease;
-
-        &:focus-within{
-            background-color: white;
-        }
-
-        .icon{
-            margin-left: 10px;
-            pointer-events: none;
-        }
-
-        .input-wrapper{
-            flex: 1;
-            height: 100%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            position: relative;
-
-            .placeholder{
-                position: absolute;
-                left: 10px;
-                top: 0;
-                bottom: 0;
-                margin: auto;
-                height: 30px;
-                display:flex;
-                align-items: center;
-                pointer-events: none;
-                color: #707070;
-                transition: opacity var(--transition-duration) ease;
-
-                &.hide{
-                    opacity: 0;
-                }
-            }
-
-            .input{
-                flex: 1;
-                height: 100%;
-                background-color: transparent;
-                outline: none;
-                border: none;
-                border-radius: 15px;
-                padding: 0 10px;
-            }
-        }
-    }
-}
 </style>
 <style>
-.taskbar-move,
-.taskbar-enter-active,
-.taskbar-leave-active {
-    transition: all var(--transition-duration) ease !important;
-}
-
-.taskbar-enter-from,
-.taskbar-leave-to {
-    opacity: 0;
-    transform: translateY(30px);
-}
-
-.dark{
+.dark-theme{
     .language-select{
         .q-icon{color: #aaa;}
         .q-item{color: white !important;}
@@ -478,21 +237,4 @@ onMounted(()=>{
 .language-select-popup .q-focus-helper{background: transparent !important;}
 .language-select-popup .q-item__label{color: black !important;}
 .language-select-popup.dark .q-item__label{color: white !important;}
-
-.taskbar-leave-active {
-    position: absolute;
-}
-
-.taskbar-tooltip{
-    background-color: rgba(var(--light-bg), .66);
-    backdrop-filter: blur(var(--blur-radius));
-    color: black;
-    font-size: 12px;
-    padding: 2px 5px;
-
-    &.dark{
-        background-color: rgba(var(--dark-bg-2), .66);
-        color: white;
-    }
-}
 </style>
