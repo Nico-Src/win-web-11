@@ -25,16 +25,8 @@ const showStartUp = ref(true);
 // lock screen variables
 const signedIn = ref(false);
 
-function taskDown(event){
-    const target = event.target;
-    target.classList.add('clicked');
-}
-
-function taskUp(event){
-    const target = event.target;
-    target.classList.remove('clicked');
-}
-
+const taskDown = (e) => { e.target.classList.add('clicked'); }
+const taskUp = (e) => { e.target.classList.remove('clicked'); }
 const taskClick = (action) => { if(action) eval(action); }
 
 function toggleWindowsHub(force){
@@ -58,7 +50,7 @@ useSeoMeta({
 
 // load the default tasks for the taskbar (windows, search, edge, ...)
 function loadDefaultTasks(){
-    const jsonPath = '/data/defaultTasks.json';
+    const jsonPath = 'data/defaultTasks.json';
     fetch(jsonPath).then(res => res.json()).then(json => {
         let offset = 0;
         for(const task of json){
@@ -92,8 +84,8 @@ onMounted(()=>{
         <StartupScreen :show="showStartUp" :show-loader="startingUp"></StartupScreen>
         <LockScreen :signed-in="signedIn" :hide-startup="startingUp"></LockScreen>
         <div class="bg-wrapper">
-            <img :class="{hide: darkMode}" src="/wallpaper/light.jpg">
-            <img :class="{hide: !darkMode}" src="/wallpaper/dark.jpg">
+            <img :class="{hide: darkMode}" src="wallpaper/light.jpg">
+            <img :class="{hide: !darkMode}" src="wallpaper/dark.jpg">
         </div>
         <Taskbar :dark-mode="darkMode" :tasks="taskbar.tasks" :task-down="taskDown" :task-up="taskUp" :task-click="taskClick" ref="taskbarEl"></Taskbar>
         <q-select ref="languageSelect" square class="language-select" @update:model-value="selectLocale" filled v-model="language" :options="$langs" :label="$t('language')" color="dark" :transition-duration="150" :popup-content-class="`${darkMode ? 'dark' : ''} language-select-popup`">
