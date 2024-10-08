@@ -23,11 +23,16 @@ const windowsHubSearch = ref('');
 const startingUp = ref(true);
 const showStartUp = ref(true);
 // lock screen variables
-const signedIn = ref(false);
+const lockScreen = ref(null);
 
 const taskDown = (e) => { e.target.classList.add('clicked'); }
 const taskUp = (e) => { e.target.classList.remove('clicked'); }
 const taskClick = (action) => { if(action) eval(action); }
+const signOut = (e) => {
+    lockScreen.value.logOut(); 
+    showWindowsHub.value = false;
+    windowsHub.value.hidePowerOffMenu();
+}
 
 function toggleWindowsHub(force){
     if(force === undefined) showWindowsHub.value = !showWindowsHub.value;
@@ -64,9 +69,8 @@ function loadDefaultTasks(){
 }
 
 window.onclick = (e) => {
-    if(!windowsHub.value.el.contains(e.target) && windowsHub.value.el !== e.target && e.target.getAttribute('data-name') !== 'windows'){
-        toggleWindowsHub(false);
-    }
+    if(!windowsHub.value.el.contains(e.target) && windowsHub.value.el !== e.target && e.target.getAttribute('data-name') !== 'windows') toggleWindowsHub(false);
+    if(!windowsHub.value.powerOffMenu.contains(e.target) && windowsHub.value.powerOffMenu !== e.target && windowsHub.value.powerOffBtn !== e.target) windowsHub.value.hidePowerOffMenu();
 }
 
 onMounted(()=>{
@@ -82,7 +86,7 @@ onMounted(()=>{
 <template>
     <div :class="{bg: true, 'dark-theme': darkMode}" ref="scrollEl">
         <StartupScreen :show="showStartUp" :show-loader="startingUp"></StartupScreen>
-        <LockScreen :signed-in="signedIn" :hide-startup="startingUp"></LockScreen>
+        <LockScreen :hide-startup="startingUp" ref="lockScreen"></LockScreen>
         <div class="bg-wrapper">
             <img :class="{hide: darkMode}" src="wallpaper/light.jpg">
             <img :class="{hide: !darkMode}" src="wallpaper/dark.jpg">
@@ -107,7 +111,7 @@ onMounted(()=>{
         <div id="theme-toggle" @click="darkMode = !darkMode">
             <Icon :name="darkMode ? 'material-symbols:dark-mode' : 'material-symbols:light-mode'" size="22px"/>
         </div>
-        <WindowsHub :show="showWindowsHub" :search="windowsHubSearch" :dark-mode="darkMode" ref="windowsHub"></WindowsHub>
+        <WindowsHub :show="showWindowsHub" :search="windowsHubSearch" :dark-mode="darkMode" ref="windowsHub" @sign-out="signOut"></WindowsHub>
     </div>
 </template>
 <style scoped>

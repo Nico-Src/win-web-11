@@ -4,13 +4,15 @@
         <div class="content-wrapper">
             <span class="time">{{ moment().locale($langs.find(l => l.key == $i18n.locale).locale).format(`${$i18n.locale == 'de' ? 'HH' : 'hh'}:mm${$i18n.locale == 'de' ? '' : ' A'}`) }}</span>
             <span class="date">{{ moment().locale($langs.find(l => l.key == $i18n.locale).locale).format('dddd, Do MMMM YYYY') }}</span>
-            <q-btn @click="signedIn = true">{{ $t('sign-in') }}</q-btn>
+            <q-btn @click="signedIn = true;">{{ $t('sign-in') }}</q-btn>
         </div>
     </div>
 </template>
 <script setup>
+const signedIn = ref(false);
 import moment from 'moment/min/moment-with-locales';
-const props = defineProps(['signedIn', 'hideStartup']);
+const props = defineProps(['hideStartup']);
+defineExpose({logOut: () => signedIn.value = false});
 </script>
 <style scoped>
 #lockScreen{
