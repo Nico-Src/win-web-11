@@ -13,7 +13,7 @@ const darkMode = ref(false);
 const taskbar = ref({tasks: []});
 const taskbarEl = ref(null);
 // language select variables
-const language = ref(app.$langs.find(l => l.key === localStorage.getItem('win-language') || 'en'));
+const language = ref(app.$langs.find(l => l.key === (localStorage.getItem('win-language') || 'en')));
 const languageSelect = ref(null);
 // windows hub variables
 const showWindowsHub = ref(false);
