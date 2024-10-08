@@ -23,6 +23,9 @@ export default defineNuxtConfig({
             },
             Quicksand: {
                 wght: [100,200,300,400,500,600,700,800,900]
+            },
+            Roboto: {
+                wght: [100,200,300,400,500,600,700,800,900]
             }
         }
     }], 'nuxt-icon', 'nuxt-quasar-ui', '@nuxtjs/i18n', '@pinia/nuxt', '@nuxt/image', 'nuxt-snackbar', 'nuxt-swiper', '@nuxtjs/robots'],

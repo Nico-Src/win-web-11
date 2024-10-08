@@ -1,7 +1,9 @@
 import en from './en.json';
 import de from './de.json';
+import ru from './ru.json';
 
 export const languages = {
     en: en,
     de: de,
+    ru: ru,
 };
